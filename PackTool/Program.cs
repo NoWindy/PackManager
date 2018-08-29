@@ -15,18 +15,18 @@ namespace PackTool
             string path = Console.ReadLine();
             Console.Write("PackName: ");
             string packName = Console.ReadLine();
-            Console.Write("PackPath: ");
-            string packPath = Console.ReadLine();
+            //Console.Write("PackPath: ");
+            //string packPath = Console.ReadLine();
 
-            string targetFilePath;
-            if (packPath == "")
-                targetFilePath = packName + ".pck";
-            else
-                targetFilePath = packPath + "/" + packName + ".pck";
+            string targetFilePath = "PackFolder/"+packName + ".pck";
+            //if (packPath == "")
+            //    targetFilePath = packName + ".pck";
+            //else
+            //    targetFilePath = packPath + "/" + packName + ".pck";
 
             ResPacker.PackAllFile(path, targetFilePath);
 
-            //File.WriteAllBytes("b.jpg", ReadPack.GetFile("a.jpg",targetFilePath));
+            File.WriteAllBytes("b.jpg", ReadPack.GetFile("a.jpg"));
         }
     }
 
