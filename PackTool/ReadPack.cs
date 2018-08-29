@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Resources;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace ReadPackTool
 {
@@ -18,6 +19,28 @@ namespace ReadPackTool
                         result = entry.Value as byte[];
                         break;
                     }
+            }
+            return result;
+        }
+
+        //批量加载文件
+        public static List<byte[]> GetFiles(string packPath, params string[] names)
+        {
+            List<byte[]> result = new List<byte[]>();
+            using (ResourceReader rr = new ResourceReader(packPath))
+            {
+                for (int i = 0; i < names.Length; i++)
+                {
+                    foreach (DictionaryEntry entry in rr)
+                    {
+                        if ((string)entry.Key == names[i])
+                        {
+                            result.Add(entry.Value as byte[]);
+                            break;
+                        }
+                    }
+                }
+
             }
             return result;
         }
