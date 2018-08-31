@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace PackReader
 {
@@ -10,7 +11,7 @@ namespace PackReader
         //要解析的文件包
         private byte[] packByte;
 
-        //头文件结构体
+        //文件头结构体
         public struct HeadInfo
         {
             public string name;
@@ -19,7 +20,7 @@ namespace PackReader
             public HeadInfo(string n, int s, int l) { name = n; start = s; length = l; }
         }
 
-        private const int headLength = 1024 * 10;        //头文件固定长度
+        //private const int headLength = 1024 * 10;        //头文件固定长度
 
         //文件名和头文件信息绑定
         private Dictionary<string, HeadInfo> filesDic = new Dictionary<string, HeadInfo>();
@@ -33,11 +34,24 @@ namespace PackReader
             //读取整个资源包，将所有头文件记录到字典中。
             while (readPosition<packByte.Length)
             {
+                int hh = 0;
+                int headLength = 0;
+                for (int i = readPosition; i < packByte.Length; i++)
+                {
+                    //找第一个“]”,前面的数据即为头文件的长度
+                    if(packByte[i]==93)
+                    {
+                        hh = i - readPosition+1;
+                        headLength = int.Parse(Encoding.Default.GetString(packByte, readPosition, hh-1));
+                        break;
+                    }
+                }
                 byte[] headByte = new byte[headLength];
-                Array.Copy(packByte, readPosition, headByte, 0, headLength);
+                Array.Copy(packByte, readPosition+hh, headByte, 0, headLength);
                 HeadInfo currentHead = (HeadInfo)BytesToStruct(headByte,typeof(HeadInfo));
+                currentHead.start += hh + headLength;
                 filesDic.Add(currentHead.name, currentHead);
-                readPosition = readPosition + headLength+ currentHead.length;
+                readPosition = readPosition + headLength+ currentHead.length+hh;
             }
         }
 
@@ -55,16 +69,13 @@ namespace PackReader
         {
             Int32 size = Marshal.SizeOf(strcutType);
             IntPtr buffer = Marshal.AllocHGlobal(size);
-            try
-            {
+            
+
                 Marshal.Copy(bytes, 0, buffer, size);
 
                 return Marshal.PtrToStructure(buffer, strcutType);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
+            
+
         }
 
     }

@@ -3,10 +3,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 using System.Resources;
-using ReadPackTool;
-using MyResources;
 using MyPack;
 using PackReader;
+using System.Text;
 
 namespace PackTool
 {
@@ -24,14 +23,15 @@ namespace PackTool
 
             string targetFilePath = "PackFolder/"+packName + ".pck";
             */
+
             string path = "1";
             string targetFilePath = "PackFolder/MyPack.pck";
             ResPacker.PackAllFile(path, targetFilePath);
 
-            //File.WriteAllBytes("b.jpg", ReadPack.GetFile("a.jpg"));
             MyPackReader reader = new MyPackReader(targetFilePath);
             File.WriteAllBytes("b.jpg",reader.GetFile("a.jpg"));
             File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
+
         }
     }
 
@@ -53,31 +53,16 @@ namespace PackTool
             Pack(dicToPack,targetFilePath);
         }
 
+        //将字典中文件打包成一个
         public static void Pack(Dictionary<string, byte[]> objCollection, string targetFilePath = "MyRes.pck")
         {
-            /*
-            //打包：以名字-内容互相绑定的形式写入
-            using (ResourceWriter rw = new ResourceWriter(targetFilePath))
-            {
-                foreach (KeyValuePair<string, byte[]> pair in objCollection)
-                    rw.AddResource(pair.Key, pair.Value);
-                rw.Generate();
-                rw.Close();
-            }
-            */
-            /*
-            MyResourcesWriter rw = new MyResourcesWriter(targetFilePath);
-            foreach (KeyValuePair< string, byte[]> pair in objCollection)
-            {
-                rw.AddResources(pair.Key, pair.Value);
-            }
-            rw.WritePack();
-            */
             MyPackTool mp = new MyPackTool();
             foreach (KeyValuePair<string, byte[]> pair in objCollection)
             {
+                //文件名和文件数据传入
                 mp.AddFile(pair.Key, pair.Value);
             }
+            //所有文件添加完毕后输出文件包
             mp.WritePack(targetFilePath);
         }
 
