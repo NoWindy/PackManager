@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections;
 
 namespace MyResources
 {
@@ -24,14 +25,27 @@ namespace MyResources
         private string _Path;
         public string Path{ get { return _Path; }}
         //资源包的数据
-        private byte[] myBytes;
+        private byte[] myBytes = null;
 
         //private int fileCount;
         //用于查询的字典，将文件的名字和文件在资源包中的数据空间绑定保存
-        private Dictionary<string, FileSpace> FilesDir;
+        private Dictionary<string, FileSpace> FilesDir = new Dictionary<string, FileSpace>();
 
+        //private Hashtable FilesDir = new Hashtable();
+
+        /*
         //每个文件的数据空间
         public class FileSpace
+        {
+            public int start;
+            public int end;
+            public FileSpace(int s, int e) { start = s; end = e; }
+            public int GetLength() { return end - start; }
+        }
+        */
+
+        //每个文件的数据空间
+        public struct FileSpace
         {
             public int start;
             public int end;
@@ -47,14 +61,23 @@ namespace MyResources
         //将文件打包
         public void AddResources(string name,byte[] file)
         {
+            int byteLength;
+            if (myBytes == null)
+                byteLength = 0;
+            else
+                byteLength = myBytes.Length;
+
             //把当前文件的信息存入字典
-            FileSpace currentFile = new FileSpace(myBytes.Length, myBytes.Length + file.Length);
+            FileSpace currentFile = new FileSpace(byteLength, byteLength + file.Length);
             FilesDir.Add(name, currentFile);
 
+
+
             //根据要合并的两个数组元素总数新建一个数组
-            byte[] newArray = new byte[myBytes.Length + file.Length];
-            Array.Copy(myBytes, 0, newArray, 0, myBytes.Length);
-            Array.Copy(file, 0, newArray, file.Length, file.Length);
+            byte[] newArray = new byte[byteLength + file.Length];
+            if(byteLength!=0)
+                Array.Copy(myBytes, 0, newArray, 0, byteLength);
+            Array.Copy(file, 0, newArray, byteLength, file.Length);
 
             myBytes = newArray;
 

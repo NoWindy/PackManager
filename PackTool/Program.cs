@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Resources;
 using ReadPackTool;
+using MyResources;
+using MyPack;
+using PackReader;
 
 namespace PackTool
 {
@@ -11,6 +14,7 @@ namespace PackTool
     {
         public static void Main(string[] args)
         {
+            /*
             Console.Write("Path: ");
             string path = Console.ReadLine();
             Console.Write("PackName: ");
@@ -19,14 +23,15 @@ namespace PackTool
             //string packPath = Console.ReadLine();
 
             string targetFilePath = "PackFolder/"+packName + ".pck";
-            //if (packPath == "")
-            //    targetFilePath = packName + ".pck";
-            //else
-            //    targetFilePath = packPath + "/" + packName + ".pck";
-
+            */
+            string path = "1";
+            string targetFilePath = "PackFolder/MyPack.pck";
             ResPacker.PackAllFile(path, targetFilePath);
 
-            File.WriteAllBytes("b.jpg", ReadPack.GetFile("a.jpg"));
+            //File.WriteAllBytes("b.jpg", ReadPack.GetFile("a.jpg"));
+            MyPackReader reader = new MyPackReader(targetFilePath);
+            File.WriteAllBytes("b.jpg",reader.GetFile("a.jpg"));
+            File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
         }
     }
 
@@ -46,11 +51,11 @@ namespace PackTool
             }
             //将字典打包为pck文件
             Pack(dicToPack,targetFilePath);
-
         }
 
         public static void Pack(Dictionary<string, byte[]> objCollection, string targetFilePath = "MyRes.pck")
         {
+            /*
             //打包：以名字-内容互相绑定的形式写入
             using (ResourceWriter rw = new ResourceWriter(targetFilePath))
             {
@@ -59,6 +64,21 @@ namespace PackTool
                 rw.Generate();
                 rw.Close();
             }
+            */
+            /*
+            MyResourcesWriter rw = new MyResourcesWriter(targetFilePath);
+            foreach (KeyValuePair< string, byte[]> pair in objCollection)
+            {
+                rw.AddResources(pair.Key, pair.Value);
+            }
+            rw.WritePack();
+            */
+            MyPackTool mp = new MyPackTool();
+            foreach (KeyValuePair<string, byte[]> pair in objCollection)
+            {
+                mp.AddFile(pair.Key, pair.Value);
+            }
+            mp.WritePack(targetFilePath);
         }
 
         //根据路径获取所有子文件
