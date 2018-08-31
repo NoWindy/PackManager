@@ -1,6 +1,6 @@
 ﻿/* 打包文件的实现：
  * 
- * 1.文件包格式：头文件+文件数据+头文件+文件数据.....
+ * 1.文件包格式：文件头+文件数据+文件头+文件数据.....
  * 2.头文件以结构体转byte[]形式存入文件包，固定分配10kb空间
  * 3.提供两个外部方：1.添加文件。2.输出文件包
  * 
@@ -84,18 +84,11 @@ namespace MyPack
         {
             Int32 size = Marshal.SizeOf(structure);
             IntPtr buffer = Marshal.AllocHGlobal(size);
-            try
-            {
-                Marshal.StructureToPtr(structure, buffer, false);
-                Byte[] bytes = new Byte[size];
-                Marshal.Copy(buffer, bytes, 0, size);
+            Marshal.StructureToPtr(structure, buffer, false);
+            Byte[] bytes = new Byte[size];
+            Marshal.Copy(buffer, bytes, 0, size);
+            return bytes;
 
-                return bytes;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
         }
 
     }

@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 解包流程：
+ * 1.找“]”字符，获取文件头长度
+ * 2.读取文件头，将信息存入字典
+ * 3.空间位置移动到下一个文件的开头，重复第一步
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -38,7 +44,7 @@ namespace PackReader
                 int headLength = 0;
                 for (int i = readPosition; i < packByte.Length; i++)
                 {
-                    //找第一个“]”,前面的数据即为头文件的长度
+                    //找第一个“]”,前面的数据即为文件头的长度
                     if(packByte[i]==93)
                     {
                         hh = i - readPosition+1;
@@ -46,11 +52,13 @@ namespace PackReader
                         break;
                     }
                 }
+                //获取文件头信息，存入字典
                 byte[] headByte = new byte[headLength];
-                Array.Copy(packByte, readPosition+hh, headByte, 0, headLength);
+                Array.Copy(packByte, readPosition + hh, headByte, 0, headLength);
                 HeadInfo currentHead = (HeadInfo)BytesToStruct(headByte,typeof(HeadInfo));
                 currentHead.start += hh + headLength;
                 filesDic.Add(currentHead.name, currentHead);
+                //移动到下一个文件空间
                 readPosition = readPosition + headLength+ currentHead.length+hh;
             }
         }
@@ -69,13 +77,8 @@ namespace PackReader
         {
             Int32 size = Marshal.SizeOf(strcutType);
             IntPtr buffer = Marshal.AllocHGlobal(size);
-            
-
-                Marshal.Copy(bytes, 0, buffer, size);
-
-                return Marshal.PtrToStructure(buffer, strcutType);
-            
-
+            Marshal.Copy(bytes, 0, buffer, size);
+            return Marshal.PtrToStructure(buffer, strcutType);
         }
 
     }
