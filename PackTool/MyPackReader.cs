@@ -12,7 +12,7 @@ using System.Text;
 
 namespace PackReader
 {
-    public class MyPackReader
+    public class MyPackReader : IDisposable
     {
         //要解析的文件包
         private byte[] packByte;
@@ -81,5 +81,9 @@ namespace PackReader
             return Marshal.PtrToStructure(buffer, strcutType);
         }
 
+        public void Dispose()
+        {
+            packByte = null;
+        }
     }
 }

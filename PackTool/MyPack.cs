@@ -15,7 +15,7 @@ using System.Text;
 
 namespace MyPack
 {
-    public class MyPackTool
+    public class MyPackTool:IDisposable 
     {
         private byte[] packByte;        //文件包
         private int positionCount;      //用于计算当前写入文件包的位置
@@ -91,6 +91,10 @@ namespace MyPack
 
         }
 
+        public void Dispose()
+        {
+            packByte = null;
+        }
     }
 
 }

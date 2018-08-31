@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Collections;
-using System.Resources;
 using MyPack;
 using PackReader;
 using System.Text;
@@ -22,14 +21,18 @@ namespace PackTool
             string packPath = Console.ReadLine();
 
             string targetFilePath = "PackFolder/"+packName + ".pck";
-
             //string path = "1";
             //string targetFilePath = "PackFolder/MyPack.pck";
+
+            //打包测试
             ResPacker.PackAllFile(path, targetFilePath);
 
-            MyPackReader reader = new MyPackReader(targetFilePath);
-            File.WriteAllBytes("b.jpg",reader.GetFile("a.jpg"));
-            File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
+            //解包测试
+            using( MyPackReader reader = new MyPackReader(targetFilePath))
+            {
+                File.WriteAllBytes("b.jpg", reader.GetFile("a.jpg"));
+                File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
+            }
 
         }
     }
@@ -43,12 +46,15 @@ namespace PackTool
             List<string> filesList = new List<string>();
             GetFile(path, filesList);
 
-            MyPackTool myPack = new MyPackTool();
-            foreach (string filePath in filesList)
+            //将文件名+文件数据写入资源包中
+            using (MyPackTool myPack = new MyPackTool())
             {
-                myPack.AddFile(Path.GetFileName(filePath), File.ReadAllBytes(filePath));
+                foreach (string filePath in filesList)
+                {
+                    myPack.AddFile(Path.GetFileName(filePath), File.ReadAllBytes(filePath));
+                }
+                myPack.WritePack(targetFilePath);
             }
-            myPack.WritePack(targetFilePath);
         }
 
         //根据路径获取所有子文件
@@ -57,14 +63,12 @@ namespace PackTool
             DirectoryInfo dir = new DirectoryInfo(path);
             FileInfo[] fil = dir.GetFiles();
             DirectoryInfo[] dii = dir.GetDirectories();
-
             //获取子文件
             foreach (FileInfo f in fil)
             {
                 long size = f.Length;
                 FileList.Add(f.FullName);
             }
-
             //获取子文件夹内的文件列表，递归遍历
             foreach (DirectoryInfo d in dii)
             {
