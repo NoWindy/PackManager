@@ -12,7 +12,7 @@ namespace PackTool
     {
         public static void Main(string[] args)
         {
-
+            /*
             Console.Write("Path: ");
             string path = Console.ReadLine();
             Console.Write("PackName: ");
@@ -21,8 +21,10 @@ namespace PackTool
             string packPath = Console.ReadLine();
 
             string targetFilePath = "PackFolder/"+packName + ".pck";
-            //string path = "1";
-            //string targetFilePath = "PackFolder/MyPack.pck";
+            */
+
+            string path = "1";
+            string targetFilePath = "PackFolder/MyPack.pck";
 
             //打包测试
             ResPacker.PackAllFile(path, targetFilePath);
@@ -31,14 +33,30 @@ namespace PackTool
             using( MyPackReader reader = new MyPackReader(targetFilePath))
             {
                 File.WriteAllBytes("b.jpg", reader.GetFile("a.jpg"));
+                File.WriteAllBytes("b.jpg", reader.GetFile("a.jpg"));
+                File.WriteAllBytes("b.jpg", reader.GetFile("a.jpg"));
+                File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
+                File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
+                File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
                 File.WriteAllBytes("a.mp3", reader.GetFile("Amaranth.mp3"));
             }
 
+            /*
+            int a = 25742222;
+            byte[] temp = System.BitConverter.GetBytes(a);
+            foreach (var item in temp)
+            {
+                Console.WriteLine(item);
+            }
+            */
+            //var a = BenchmarkRunner.Run<MyPackTool>();
         }
     }
 
+    
     public static class ResPacker
     {
+        //[Benchmark]
         //打包文件夹内的所有文件
         public static void PackAllFile(string path,string targetFilePath)
         {

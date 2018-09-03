@@ -26,12 +26,10 @@ namespace PackReader
             public HeadInfo(string n, int s, int l) { name = n; start = s; length = l; }
         }
 
-        //private const int headLength = 1024 * 10;        //头文件固定长度
-
         //文件名和头文件信息绑定
         private Dictionary<string, HeadInfo> filesDic = new Dictionary<string, HeadInfo>();
 
-        //构造函数：资源包解析
+        //构造函数：资源包解析。初始化主要目的是把资源包中所有文件头信息保存到字典中。
         public MyPackReader(string packPath)
         {
             int readPosition = 0;
@@ -40,18 +38,12 @@ namespace PackReader
             //读取整个资源包，将所有头文件记录到字典中。
             while (readPosition<packByte.Length)
             {
-                int hh = 0;
-                int headLength = 0;
-                for (int i = readPosition; i < packByte.Length; i++)
-                {
-                    //找第一个“]”,前面的数据即为文件头的长度
-                    if(packByte[i]==93)
-                    {
-                        hh = i - readPosition+1;
-                        headLength = int.Parse(Encoding.Default.GetString(packByte, readPosition, hh-1));
-                        break;
-                    }
-                }
+                //获取文件头的长度
+                int hh = 4;
+                byte[] hhByte = new byte[4];
+                Array.Copy(packByte, readPosition, hhByte, 0, 4);
+                int headLength = hhByte[0] + hhByte[1] * 256 + hhByte[2] * 256 * 256 + hhByte[3] * 256 * 256 * 256;
+
                 //获取文件头信息，存入字典
                 byte[] headByte = new byte[headLength];
                 Array.Copy(packByte, readPosition + hh, headByte, 0, headLength);
@@ -63,12 +55,21 @@ namespace PackReader
             }
         }
 
-        //外部方：根据文件名获取文件数据
+        //外部方法：根据文件名获取文件数据
         public Byte[] GetFile(string name)
         {
+            //先从缓存区查找文件
+            if (MyCache.GetInstance().GetCacheFile(name)!=null)
+                return MyCache.instance.GetCacheFile(name);
+
+            //根据文件头信息读出文件
             HeadInfo targetHead = filesDic[name];
             byte[] result = new byte[targetHead.length];
             Array.Copy(packByte, targetHead.start, result, 0, targetHead.length);
+
+            //当前文件进行一次规律判断
+            MyCache.GetInstance().RuleDetection(name, result);
+
             return result;
         }
 
@@ -81,6 +82,7 @@ namespace PackReader
             return Marshal.PtrToStructure(buffer, strcutType);
         }
 
+        //清理缓存
         public void Dispose()
         {
             packByte = null;

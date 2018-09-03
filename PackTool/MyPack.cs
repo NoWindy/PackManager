@@ -22,7 +22,7 @@ namespace MyPack
 
         //public const int headLength = 1024*10;      //头文件的固定长度
 
-        //头文件保存：1.文件名。2.文件数据起始位置。3.文件数据长度。
+        //文件头保存：1.文件名。2.文件数据起始位置。3.文件数据长度。
         //当前保存的变量主要为了实现需求：输入文件名获取文件数据。
         public struct HeadInfo
         {
@@ -33,6 +33,7 @@ namespace MyPack
         }
 
         //外部方法：添加一个文件到包
+        //[Benchmark]
         public void AddFile(string name,byte[] file)
         {
             //记录头文件信息并转为byte[]
@@ -48,9 +49,12 @@ namespace MyPack
         {
 
             //把文件头的长度写入，以“]”结束
+            //int headLength = head.Length;
+            //string headInfo = headLength.ToString() + "]";
+            //byte[] hhByte = System.Text.Encoding.Default.GetBytes(headInfo);
             int headLength = head.Length;
-            string headInfo = headLength.ToString() + "]";
-            byte[] hhByte = System.Text.Encoding.Default.GetBytes(headInfo);
+            byte[] hhByte = BitConverter.GetBytes(headLength);
+
 
             //文件内容写入
             byte[] temp;
@@ -64,7 +68,8 @@ namespace MyPack
             {
                 temp = new byte[headLength + file.Length+ hhByte.Length];
             }
-            Array.Copy(hhByte, 0, temp, positionCount, headInfo.Length);
+            //Array.Copy(hhByte, 0, temp, positionCount, headInfo.Length);
+            Array.Copy(hhByte, 0, temp, positionCount, 4);
             Array.Copy(head, 0, temp, positionCount+ hhByte.Length, head.Length);
             Array.Copy(file, 0, temp, positionCount + headLength+ hhByte.Length, file.Length);
             packByte = temp;
